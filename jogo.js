@@ -222,7 +222,7 @@ function criaCanos() {
       );
 
       const canoChaoX = 220;
-      const canoChaoY = canos.altura + espacamentoEntreCanos + yRandom;
+      const canoChaoY = canos.altura + espacamentoEntreCanos + 1 + yRandom;
       contexto.drawImage(
         sprites,
         canos.chao.spriteX,
