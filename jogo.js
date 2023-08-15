@@ -203,37 +203,86 @@ function criaCanos() {
     },
     espaco: 80,
     desenha() {
-      const yRandom = -150;
-      const espacamentoEntreCanos = 40;
+      canos.pares.forEach((par) => {
+        const yRandom = par.y;
+        const espacamentoEntreCanos = 90;
 
-      const canoCeuX = 220;
-      const canoCeuY = yRandom;
-      //[Cano do ceu]
-      contexto.drawImage(
-        sprites,
-        canos.ceu.spriteX,
-        canos.ceu.spriteY,
-        canos.largura,
-        canos.altura,
-        canoCeuX,
-        canoCeuY,
-        canos.largura,
-        canos.altura
-      );
+        const canoCeuX = par.x;
+        const canoCeuY = yRandom;
+        //[Cano do ceu]
+        contexto.drawImage(
+          sprites,
+          canos.ceu.spriteX,
+          canos.ceu.spriteY,
+          canos.largura,
+          canos.altura,
+          canoCeuX,
+          canoCeuY,
+          canos.largura,
+          canos.altura
+        );
+        //[Cano do chao]
+        const canoChaoX = par.x;
+        const canoChaoY = canos.altura + espacamentoEntreCanos + yRandom;
+        contexto.drawImage(
+          sprites,
+          canos.chao.spriteX,
+          canos.chao.spriteY,
+          canos.largura,
+          canos.altura,
+          canoChaoX,
+          canoChaoY,
+          canos.largura,
+          canos.altura
+        );
+        par.canoCeu = {
+          x: canoCeuX,
+          y: canos.altura + canoCeuY,
+        };
+        par.canoChao = {
+          x: canoChaoX,
+          y: canoChaoY,
+        };
+      });
+    },
+    temColisaoComOFlappyBird(par) {
+      const cabecaDoFlappy = globais.flappyBird.y;
+      const peDoFlappy = globais.flappyBird.y + globais.flappyBird.altura;
 
-      const canoChaoX = 220;
-      const canoChaoY = canos.altura + espacamentoEntreCanos + 1 + yRandom;
-      contexto.drawImage(
-        sprites,
-        canos.chao.spriteX,
-        canos.chao.spriteY,
-        canos.largura,
-        canos.altura,
-        canoChaoX,
-        canoChaoY,
-        canos.largura,
-        canos.altura
-      );
+      if (globais.flappyBird.x >= par.x) {
+        if (cabecaDoFlappy <= par.canoCeu.y) {
+          return true;
+        }
+
+        if (peDoFlappy <= par.canoChao.y) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+    pares: [],
+    atualiza() {
+      const passou100frames = frames % 100 === 0;
+      if (passou100frames) {
+        canos.pares.push({
+          x: canvas.width,
+          y: -150 * (Math.random() + 1),
+        });
+      }
+
+      canos.pares.forEach((par) => {
+        par.x = par.x - 2;
+
+        if (canos.temColisaoComOFlappyBird(par)) {
+          console.log("Você PERDEU!");
+          mudaParaTela(telas.INICIO);
+        }
+
+        if (par.x + canos.largura <= 0) {
+          canos.pares.shift();
+        }
+      });
     },
   };
   return canos;
@@ -259,10 +308,10 @@ const telas = {
     },
     desenha() {
       planoDeFundo.desenha();
-      globais.chao.desenha();
       globais.flappyBird.desenha();
-      globais.canos.desenha();
-      // mensagemGetReady.desenha();
+
+      globais.chao.desenha();
+      mensagemGetReady.desenha();
     },
     click() {
       mudaParaTela(telas.JOGO);
@@ -276,14 +325,16 @@ const telas = {
 telas.JOGO = {
   desenha() {
     planoDeFundo.desenha();
-    globais.chao.desenha();
     globais.flappyBird.desenha();
+    globais.canos.desenha();
+    globais.chao.desenha();
   },
   click() {
     globais.flappyBird.pula();
   },
   atualiza() {
     globais.flappyBird.atualiza();
+    globais.canos.atualiza();
     globais.chao.atualiza();
   },
 };
