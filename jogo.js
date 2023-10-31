@@ -268,22 +268,23 @@ function criaCanos() {
         };
       });
     },
+
+
     temColisaoComOFlappyBird(par) {
       const cabecaDoFlappy = globais.flappyBird.y;
       const peDoFlappy = globais.flappyBird.y + globais.flappyBird.altura;
-
-      if (globais.flappyBird.x + globais.flappyBird.largura - 5 >= par.x) {
-        if (cabecaDoFlappy <= par.canoCeu.y) {
-          return true;
-        }
-
-        if (peDoFlappy <= par.canoChao.y) {
-          return true;
-        }
+    
+      if (
+        globais.flappyBird.x + globais.flappyBird.largura >= par.x &&
+        globais.flappyBird.x <= par.x + canos.largura &&
+        (cabecaDoFlappy <= par.canoCeu.y || peDoFlappy >= par.canoChao.y)
+      ) {
+        return true;
       }
-
+    
       return false;
     },
+    
     pares: [],
     atualiza() {
       const passou100frames = frames % 100 === 0;
@@ -392,6 +393,7 @@ telas.JOGO = {
 telas.GAME_OVER = {
   desenha() {
     mensagemGameOver.desenha();
+
   },
   atualiza() {},
   click() {
